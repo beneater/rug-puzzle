@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<div id="container"></div>
+<style>
+    #container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    #container > div {
+        margin: 10px;
+    }
+</style>
+<script>
+
+// Functions of `x` describing the lines in the pattern
+const xLines = [
+    x => x - 18,
+    x => x - 16,
+    x => x - 14,
+    x => x - 12,
+    x => x - 10,
+    x => x - 8,
+    x => x - 6,
+    x => x - 4,
+    x => x - 2,
+    x => x,
+    x => x + 2,
+    x => x + 4,
+    x => x + 6,
+    x => x + 8,
+    x => x + 10,
+    x => x + 12,
+    x => -x + 2,
+    x => -x + 4,
+    x => -x + 6,
+    x => -x + 8,
+    x => -x + 10,
+    x => -x + 12,
+    x => -x + 14,
+    x => -x + 16,
+    x => -x + 18,
+    x => -x + 20,
+    x => -x + 22,
+    x => -x + 24,
+    x => -x + 26,
+    x => -x + 28,
+    x => -x + 30,
+    x => -x + 32,
+    x => -x + 34,
+    x => -x + 36,
+    x => 0,
+    x => 1,
+    x => 2,
+    x => 3,
+    x => 4,
+    x => 5,
+    x => 6,
+    x => 7,
+    x => 8,
+    x => 9,
+    x => 10,
+    x => 11,
+    x => 12,
+    x => 13,
+    x => 14,
+    x => 15,
+    x => 16,
+    x => 17,
+    x => 18,
+];
+
+// Functions of `y` describing the rest of the lines in the pattern
+const yLines = [
+    y => 0,
+    y => 1,
+    y => 2,
+    y => 3,
+    y => 4,
+    y => 5,
+    y => 6,
+    y => 7,
+    y => 8,
+    y => 9,
+    y => 10,
+    y => 11,
+    y => 12,
+    y => 13,
+    y => 14,
+    y => 15,
+    y => 16,
+    y => 17,
+    y => 18,
+    y => 19,
+    y => 20,
+];
+
+
+const backgroundColor = '#eaeff2';
+const gridColor = "#cccccc";
+const triangleColor = "rgba(208, 47, 59, 0.6)";
+const textColor = "rgba(102, 102, 102, 0.8)";
+
+
+function drawRugPattern(ctx) {
+    ctx.strokeStyle = gridColor;
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, 20, 18);
+
+    xLines.forEach((fn) => {
+        ctx.beginPath()
+        ctx.moveTo(0, fn(0));
+        ctx.lineTo(20, fn(20));
+        ctx.stroke();
+    });
+
+    yLines.forEach((fn) => {
+        ctx.beginPath()
+        ctx.moveTo(fn(0), 0);
+        ctx.lineTo(fn(18), 18);
+        ctx.stroke();
+    });
+}
+
+let count = 0;
+
+// Iterate through all combinations of three of the 399 verticies
+for (let point1 = 0; point1 < 399; point1 += 1) {
+    const x1 = point1 % 21
+    const y1 = Math.floor(point1 / 21)
+    for (let point2 = point1 + 1; point2 < 399; point2 += 1) {
+        const x2 = point2 % 21
+        const y2 = Math.floor(point2 / 21)
+        for (let point3 = point2 + 1; point3 < 399; point3 += 1) {
+            const x3 = point3 % 21
+            const y3 = Math.floor(point3 / 21)
+
+            // Find lines in the pattern that intersect both P1 & P2
+            const p1p2 = xLines.filter((fn) => fn(x1) === y1 && fn(x2) === y2).concat(
+                yLines.filter((fn) => x1 === fn(y1) && x2 === fn(y2)));
+            // Find lines in the pattern that intersect both P2 & P3
+            const p2p3 = xLines.filter((fn) => fn(x2) === y2 && fn(x3) === y3).concat(
+                yLines.filter((fn) => x2 === fn(y2) && x3 === fn(y3)));
+            // Find lines in the pattern that intersect both P1 & P3
+            const p1p3 = xLines.filter((fn) => fn(x1) === y1 && fn(x3) === y3).concat(
+                yLines.filter((fn) => x1 === fn(y1) && x3 === fn(y3)));
+
+            // If each pair of points is connected by a line in the pattern and
+            // all three lines are different, then we found a triangle
+            if (p1p2.length === 1 && p2p3.length === 1 && p1p3.length === 1 &&
+                    p1p2[0] !== p2p3[0] && p2p3[0] !== p1p3[0] && p1p2[0] !== p1p3[0]) {
+
+                count += 1;
+
+                // Add a new canvas to the page
+                const canvas = document.createElement("canvas");
+                canvas.width = 200;
+                canvas.height = 360;
+                const div = document.createElement("div");
+                const container = document.getElementById("container");
+                container.appendChild(div);
+                div.appendChild(canvas);
+                const ctx = canvas.getContext('2d');
+
+                // Transform canvas to put the origin in the bottom left because
+                // that's how math works and scale such that x units are 10px
+                // and y units are 20px since that's what the rug looks like.
+                ctx.transform(10, 0, 0, -20, 0, 360);
+                ctx.lineWidth = 0.1;
+                drawRugPattern(ctx);
+
+                // Draw the triangle we found
+                ctx.strokeStyle = triangleColor;
+                ctx.fillStyle = triangleColor;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.lineTo(x3, y3);
+                ctx.lineTo(x1, y1);
+                ctx.stroke();
+                ctx.fill();
+
+                // Label the image with the running count
+                ctx.resetTransform();
+                ctx.font = "58px sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = textColor;
+                ctx.fillText(count, 100, 180);
+//                break;
+            }
+        }
+//        if (count > 20) { break; }
+    }
+//    if (count > 20) { break; }
+}
+
+</script>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<div id="container"></div>
+<style>
+    #container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    #container > div {
+        margin: 8px;
+    }
+</style>
+<script>
+
+// Functions of `x` describing the lines in the pattern
+const xLines = [
+    x => x,
+    x => x - 2,
+    x => x - 4,
+    x => -x + 2,
+    x => -x + 4,
+    x => -x + 6,
+    x => 0,
+    x => 1,
+    x => 2,
+];
+
+// Functions of `y` describing the rest of the lines in the pattern
+const vLines = [
+    y => 0,
+    y => 1,
+    y => 2,
+    y => 3,
+    y => 4,
+    y => 5,
+];
+
+
+const backgroundColor = '#eaeff2';
+const gridColor = "#cccccc";
+const triangleColor = "rgba(208, 47, 59, 0.6)";
+const textColor = "rgba(102, 102, 102, 0.8)";
+
+
+function clear(ctx) {
+    ctx.strokeStyle = gridColor;
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, 300, 520);
+
+    xLines.forEach((fn) => {
+        ctx.beginPath()
+        ctx.moveTo(0, fn(0));
+        ctx.lineTo(15, fn(15));
+        ctx.stroke();
+    });
+
+    vLines.forEach((fn) => {
+        ctx.beginPath()
+        ctx.moveTo(fn(0), 0);
+        ctx.lineTo(fn(13), 13);
+        ctx.stroke();
+    });
+}
+
+let count = 0;
+
+// Iterate through all combinations of three of the 244 verticies
+for (let point1 = 0; point1 < 18; point1 += 1) {
+    const x1 = point1 % 6
+    const y1 = Math.floor(point1 / 6)
+    for (let point2 = point1 + 1; point2 < 18; point2 += 1) {
+        const x2 = point2 % 6
+        const y2 = Math.floor(point2 / 6)
+        for (let point3 = point2 + 1; point3 < 18; point3 += 1) {
+            const x3 = point3 % 6
+            const y3 = Math.floor(point3 / 6)
+
+            // Find lines in the pattern shared by P1 & P2
+            const p1p2 = xLines.filter((fn) => fn(x1) === y1 && fn(x2) === y2).concat(
+                vLines.filter((fn) => x1 === fn(y1) && x2 === fn(y2)));
+            // Find lines in the pattern shared by P2 & P3
+            const p2p3 = xLines.filter((fn) => fn(x2) === y2 && fn(x3) === y3).concat(
+                vLines.filter((fn) => x2 === fn(y2) && x3 === fn(y3)));
+            // Find lines in the pattern shared by P1 & P3
+            const p1p3 = xLines.filter((fn) => fn(x1) === y1 && fn(x3) === y3).concat(
+                vLines.filter((fn) => x1 === fn(y1) && x3 === fn(y3)));
+
+            // If each pair of points is connected by a line in the pattern and
+            // all three lines are different, then we found a triangle
+            if (p1p2.length === 1 && p2p3.length === 1 && p1p3.length === 1 &&
+                    p1p2[0] !== p2p3[0] && p2p3[0] !== p1p3[0] && p1p2[0] !== p1p3[0]) {
+                const canvas = document.createElement("canvas");
+                canvas.width = 50;
+                canvas.height = 40;
+                const div = document.createElement("div");
+
+                const container = document.getElementById("container");
+                container.appendChild(div);
+                div.appendChild(canvas);
+
+                const ctx = canvas.getContext('2d');
+                ctx.transform(10, 0, 0, -20, 0, 40);
+                ctx.lineWidth = 0.1;
+                clear(ctx);
+                ctx.strokeStyle = triangleColor;
+                ctx.fillStyle = triangleColor;
+                count += 1;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.lineTo(x3, y3);
+                ctx.lineTo(x1, y1);
+                ctx.stroke();
+                ctx.fill();
+                ctx.resetTransform();
+                ctx.font = "20px sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = textColor;
+                ctx.fillText(count, 25, 20);
+            }
+        }
+    }
+}
+
+</script>
