@@ -18,7 +18,7 @@ I initially wrote this solver for the 15 by 13 rectangle version not realizing i
 
 ### 20 x 18 rug
 
-However, the rug in the video—the one our 8-year old friend really cares about—is 20 by 18 rectangles. For that rug, this solver finds 7798 triangles.
+However, the rug in the video—the one our 8-year old friend really cares about—is 20 by 18 rectangles. For that rug, this solver finds 7860 triangles.
 
 ![Output of this solver](https://raw.githubusercontent.com/beneater/rug-puzzle/master/triangles-20x18.png)
 
