@@ -1,6 +1,6 @@
 # Rug puzzle solver
 
-Copyright 2017 Ben Eater
+Copyright 2018 Ben Eater
 
 This code is [MIT licensed](http://en.wikipedia.org/wiki/MIT_License).
 
